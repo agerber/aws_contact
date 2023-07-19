@@ -1,0 +1,2 @@
+# all the deps in this project come directly from the python sdk
+# there is no need to fetch any additional resources so far.
