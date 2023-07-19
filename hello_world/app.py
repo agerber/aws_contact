@@ -1,42 +1,45 @@
 import json
-
-# import requests
+from typing import Dict
+from hello_world.message import Message
 
 
 def lambda_handler(event, context):
-    """Sample pure Lambda function
 
-    Parameters
-    ----------
-    event: dict, required
-        API Gateway Lambda Proxy Input Format
 
-        Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
-
-    context: object, required
-        Lambda Context runtime methods and attributes
-
-        Context doc: https://docs.aws.amazon.com/lambda/latest/dg/python-context-object.html
-
-    Returns
-    ------
-    API Gateway Lambda Proxy Output Format: dict
-
-        Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
-    """
-
-    # try:
-    #     ip = requests.get("http://checkip.amazonaws.com/")
-    # except requests.RequestException as e:
-    #     # Send some context about this error to Lambda Logs
-    #     print(e)
-
-    #     raise e
-
-    return {
-        "statusCode": 200,
-        "body": json.dumps({
-            "message": "hello world",
-            # "location": ip.text.replace("\n", "")
-        }),
+    #headers we use to send back data to the caller
+    headers: Dict[str, str] = {
+        "Content-Type": "application/json",
+        "X-Custom-Header": "application/json"
     }
+
+    try:
+        #attempt to parse the json into Message by passing in a dictionary
+        message = json.loads(event["body"], object_hook=lambda d: Message(**d))
+    except json.JSONDecodeError as e:
+        return {
+            "body": json.dumps({str(e)}),
+            "headers": headers,
+            "statusCode": 400
+        }
+
+    # info on how to use the context object https://docs.aws.amazon.com/lambda/latest/dg/python-context.html
+    # convert the message object back into a json
+    json_object = {
+
+        #we parse the event-body (aka message) above
+        "message-subject": message.subject,
+        "message-body": message.body,
+        "message-email": message.email
+    }
+
+    # send out to SES
+
+
+    # and return it
+    return {
+        "body": json.dumps(json_object),
+        "headers": headers,
+        "statusCode": 201
+    }
+
+
