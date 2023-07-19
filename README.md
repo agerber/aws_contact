@@ -1,5 +1,47 @@
 # sam_emailer_python
 
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+//TEST LOCALLY
+
+when testing python, use this in postman locally -> 
+
+POST
+http://localhost:3000/mail
+
+{"subject": "hello", "body": "this is my body message", "email": "a@b.com"}
+
+to test, run these
+
+#build with container. send locally. 
+sam build --use-container
+
+
+#start up in a docker container
+sam local start-api
+
+&&&&&&&&&&&&&&&&&&&&&&&&&
+
+//BUILD AND DEPLOY TO AWS
+
+//create a new bucket in s3. This will be created on your default region
+aws s3 mb s3://emailer-3
+
+//build into a container
+sam build --use-container
+
+//deploy zip to this bucket
+sam deploy --s3-bucket emailer-3
+
+//clean-up when done using sam-cli or AWS Toolkit from PyCharm
+sam delete --stack-name "emailer-3"
+
+
+
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 
 - hello_world - Code for the application's Lambda function.
